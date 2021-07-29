@@ -1,0 +1,85 @@
+pipeline{
+
+agent any;
+
+tools{
+maven 'maven3.6.3'
+
+}
+
+triggers{
+buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5'))
+pollSCM('* * * * *')
+}
+
+options{
+timestamps()
+buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5'))
+}
+
+stages{
+
+stage('checkout code'){
+steps{
+git branch: 'development', credentialsId: 'dfac8ab2-eea1-40fb-a9f3-506777964570', url: 'https://github.com/siva207/maven-web-application.git'
+
+}
+}
+
+stage('build'){
+steps{
+sh "mvn clean package"
+}
+}
+
+
+stage('excu sonarqube report'){
+steps{
+sh "mvn clean sonar:sonar"
+}
+}
+
+stage('buildartific nexus'){
+steps{
+sh "mvn clean deploy"
+}
+}
+
+stage('deploy in tomcatserver'){
+steps{
+sshagent(['eed4c778-6eb9-4644-be9f-442c638376e5']) {
+sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@13.126.47.74:/opt/apache-tomcat-9.0.50/webapps/"
+
+
+}
+}
+}
+
+}//stages closing
+
+post{
+
+success{
+emailext body: '''build over
+
+regards,
+siva krishna
+8499999443''', subject: 'build over', to: 'sivakrrish74@gmail.com,sivamannem6@gmail.com'
+}
+failure{
+emailext body: '''build over
+
+regards,
+siva krishna
+8499999443''', subject: 'build over', to: 'sivakrrish74@gmail.com,sivamannem6@gmail.com'
+}
+always{
+emailext body: '''build over
+
+regards,
+siva krishna
+8499999443''', subject: 'build over', to: 'sivakrrish74@gmail.com,sivamannem6@gmail.com'
+}
+ 
+}
+}//pipeline closing
