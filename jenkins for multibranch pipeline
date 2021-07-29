@@ -1,85 +1,38 @@
-pipeline{
-
-agent any;
-
-tools{
-maven 'maven3.6.3'
-
-}
-
-triggers{
-buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5'))
-pollSCM('* * * * *')
-}
-
-options{
-timestamps()
-buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5'))
-}
-
-stages{
-
+node{
+    
+def mavenhome = tool name: "maven3.6.3"
+    
 stage('checkout code'){
-steps{
-git branch: 'development', credentialsId: 'dfac8ab2-eea1-40fb-a9f3-506777964570', url: 'https://github.com/siva207/maven-web-application.git'
-
-}
-}
-
-stage('build'){
-steps{
-sh "mvn clean package"
-}
+git branch: 'development', credentialsId: 'dfac8ab2-eea1-40fb-a9f3-506777964570', url: 'https://github.com/devops-wallmart/maven-web-application.git' 
 }
 
 
-stage('excu sonarqube report'){
-steps{
-sh "mvn clean sonar:sonar"
+stage('Build'){
+sh "${mavenhome}/bin/mvn clean package"
+}
+
+/*
+stage('executesonarqube report'){
+sh "${mavenhome}/bin/mvn sonar:sonar"
+}
+
+stage('uploadartifactintonexus'){
+sh "${mavenhome}/bin/mvn deploy"
+}
+
+stage('deploying the tomcatsever'){
+sshagent(['4c2314aa-d322-4e0c-8f5c-7b036a88dff6']) {
+ sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@13.234.119.113:/opt/apache-tomcat-9.0.50/webapps/"
 }
 }
 
-stage('buildartific nexus'){
-steps{
-sh "mvn clean deploy"
-}
-}
-
-stage('deploy in tomcatserver'){
-steps{
-sshagent(['eed4c778-6eb9-4644-be9f-442c638376e5']) {
-sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@13.126.47.74:/opt/apache-tomcat-9.0.50/webapps/"
-
-
-}
-}
-}
-
-}//stages closing
-
-post{
-
-success{
-emailext body: '''build over
+stage('email for build over'){
+emailext body: '''build over..
 
 regards,
 siva krishna
-8499999443''', subject: 'build over', to: 'sivakrrish74@gmail.com,sivamannem6@gmail.com'
-}
-failure{
-emailext body: '''build over
+8499999443''', subject: 'build over', to: 'sivakrrish74@gmail.com,harish.blrhari21@gmail.com,sivamannem6@gmail.com'
 
-regards,
-siva krishna
-8499999443''', subject: 'build over', to: 'sivakrrish74@gmail.com,sivamannem6@gmail.com'
 }
-always{
-emailext body: '''build over
-
-regards,
-siva krishna
-8499999443''', subject: 'build over', to: 'sivakrrish74@gmail.com,sivamannem6@gmail.com'
+*/
 }
- 
-}
-}//pipeline closing
