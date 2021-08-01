@@ -99,7 +99,7 @@
 	    <repository>
 	      <id>nexus</id>
 	      <name>Mithun Technologies Releases Nexus Repository</name>
-	      <url>http://65.2.81.184:8081/repository/wallmart-release/</url>
+	      <url>http://65.2.81.184:8081/repository/flipkartrelease/</url>
 	    </repository>
 	    
 	    <snapshotRepository>
